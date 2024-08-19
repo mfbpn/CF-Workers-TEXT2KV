@@ -30,31 +30,62 @@ export default {
 		}
 
 		// 检查提供的 token 是否与 mytoken 相符
-		if (token === mytoken) {
-			const 文件名 = url.pathname.startsWith('/') ? url.pathname.substring(1) : url.pathname;
+		const 文件名 = url.pathname.startsWith('/') ? url.pathname.substring(1) : url.pathname;
 
-			if (文件名 == "config" || 文件名 == mytoken) {
-				const html = configHTML(url.hostname, token);
-				return new Response(html, {
-				  headers: {
-					'Content-Type': 'text/html; charset=UTF-8',
-				  },
-				});
-			} else if (文件名 == "config/update.bat") {
-				return new Response(下载bat(url.hostname, token), {
-				  headers: {
-					"Content-Disposition": `attachment; filename=update.bat`, 
-					"content-type": "text/plain; charset=utf-8",
-				  },
-				});
-			} else if (文件名 == "config/update.sh") {
-				return new Response(下载sh(url.hostname, token), {
-				  headers: {
-					"Content-Disposition": `attachment; filename=update.sh`, 
-					"content-type": "text/plain; charset=utf-8",
-				  },
-				});
-			} else {
+		if (文件名 == mytoken) {
+			const html = configHTML(url.hostname, token);
+			return new Response(html, {
+			  headers: {
+				'Content-Type': 'text/html; charset=UTF-8',
+			  },
+			});
+		} else if (文件名 == "config/update.bat" && token === mytoken) {
+			return new Response(下载bat(url.hostname, token), {
+			  headers: {
+				"Content-Disposition": `attachment; filename=update.bat`, 
+				"content-type": "text/plain; charset=utf-8",
+			  },
+			});
+		} else if (文件名 == "config/update.sh" && token === mytoken) {
+			return new Response(下载sh(url.hostname, token), {
+			  headers: {
+				"Content-Disposition": `attachment; filename=update.sh`, 
+				"content-type": "text/plain; charset=utf-8",
+			  },
+			});
+		} else if (url.pathname == "/"){//首页改成一个nginx伪装页
+		return new Response(`
+		<!DOCTYPE html>
+		<html>
+		<head>
+		<title>Welcome to nginx!</title>
+		<style>
+			body {
+				width: 35em;
+				margin: 0 auto;
+				font-family: Tahoma, Verdana, Arial, sans-serif;
+			}
+		</style>
+		</head>
+		<body>
+		<h1>Welcome to nginx!</h1>
+		<p>If you see this page, the nginx web server is successfully installed and
+		working. Further configuration is required.</p>
+		
+		<p>For online documentation and support please refer to
+		<a href="http://nginx.org/">nginx.org</a>.<br/>
+		Commercial support is available at
+		<a href="http://nginx.com/">nginx.com</a>.</p>
+		
+		<p><em>Thank you for using nginx.</em></p>
+		</body>
+		</html>
+		`, {
+		  headers: {
+			'Content-Type': 'text/html; charset=UTF-8',
+		  },
+		});
+		} else {
 				// 获取 URL 查询参数中的 'text' 和 'b64'，如果不存在则赋值为 "null"
 				const text = url.searchParams.get('text') || "null";
 				const b64 = url.searchParams.get('b64') || "null";
@@ -86,46 +117,6 @@ export default {
 					}
 				}
 			}
-
-			
-		} else if (url.pathname == "/"){//首页改成一个nginx伪装页
-			return new Response(`
-			<!DOCTYPE html>
-			<html>
-			<head>
-			<title>Welcome to nginx!</title>
-			<style>
-				body {
-					width: 35em;
-					margin: 0 auto;
-					font-family: Tahoma, Verdana, Arial, sans-serif;
-				}
-			</style>
-			</head>
-			<body>
-			<h1>Welcome to nginx!</h1>
-			<p>If you see this page, the nginx web server is successfully installed and
-			working. Further configuration is required.</p>
-			
-			<p>For online documentation and support please refer to
-			<a href="http://nginx.org/">nginx.org</a>.<br/>
-			Commercial support is available at
-			<a href="http://nginx.com/">nginx.com</a>.</p>
-			
-			<p><em>Thank you for using nginx.</em></p>
-			</body>
-			</html>
-			`, {
-			  headers: {
-				'Content-Type': 'text/html; charset=UTF-8',
-			  },
-			});
-		} else {// 如果 token 不符，返回 'token 有误'//
-			return new Response('token 有误', {
-				status: 400,
-				headers: { 'content-type': 'text/plain; charset=utf-8' },
-			});
-		}
 	}
 };
 
